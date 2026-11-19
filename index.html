@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClipCut AI Studio — Cortes de 1 Minuto + Tradução EN → PT-BR</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        studio: {
+                            950: '#08080b',
+                            900: '#101015',
+                            850: '#16161d',
+                            800: '#1e1e28',
+                            700: '#2b2b38',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101015;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2b2b38;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f52;
+        }
+        .clip-card-active {
+            border-color: #8b5cf6 !important;
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.16), rgba(6, 182, 212, 0.08));
+        }
+        .step-badge-active {
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            color: white;
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-studio-950 text-zinc-100 font-sans min-h-screen flex flex-col selection:bg-violet-500/30 selection:text-violet-200 overflow-x-hidden">
+
+    <!-- Container de Notificações Toast (Sem alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Barra Superior -->
+    <header class="bg-studio-900/90 backdrop-blur-md border-b border-zinc-800/80 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-violet-600/25 shrink-0">
+                    <i data-lucide="scissors" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-zinc-100 to-cyan-300 bg-clip-text text-transparent">
+                            ClipCut AI Studio
+                        </h1>
+                        <span class="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                            <i data-lucide="languages" class="w-3 h-3"></i> EN → PT-BR
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-zinc-400 hidden md:block">Cortes de 1 min para TikTok & Shorts (Horizontal) com Tradução Automática</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="btn-demo-en" class="px-3 py-2 rounded-xl bg-studio-800 hover:bg-studio-700 border border-zinc-700/80 text-xs font-semibold text-cyan-300 flex items-center gap-1.5 transition active:scale-95">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Testar Vídeo em Inglês (Demo)</span>
+                    <span class="sm:hidden">Demo EN</span>
+                </button>
+                <label for="file-input-header" class="cursor-pointer px-3.5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-xs font-bold text-white shadow-lg shadow-violet-600/25 flex items-center gap-1.5 transition active:scale-95">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                    <span>Enviar Vídeo</span>
+                    <input id="file-input-header" type="file" accept="video/mp4,video/webm,video/quicktime,video/*" class="hidden">
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <!-- Guia Visual de 4 Passos Intuitivos -->
+    <div class="bg-studio-900/60 border-b border-zinc-800/70">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+                <div id="step-1-pill" class="step-badge-active rounded-xl px-3 py-2 flex items-center gap-2.5 transition">
+                    <span class="w-6 h-6 rounded-lg bg-black/30 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold truncate">Enviar Vídeo</p>
+                        <p class="text-[10px] opacity-80 truncate">MP4, WebM, MOV ou Demo</p>
+                    </div>
+                </div>
+                <div id="step-2-pill" class="bg-studio-850 border border-zinc-800/90 text-zinc-400 rounded-xl px-3 py-2 flex items-center gap-2.5 transition">
+                    <span class="w-6 h-6 rounded-lg bg-studio-800 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold truncate">Cortes de 1 Min</p>
+                        <p class="text-[10px] opacity-80 truncate">Fatiamento automático</p>
+                    </div>
+                </div>
+                <div id="step-3-pill" class="bg-studio-850 border border-zinc-800/90 text-zinc-400 rounded-xl px-3 py-2 flex items-center gap-2.5 transition">
+                    <span class="w-6 h-6 rounded-lg bg-studio-800 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold truncate">Traduzir EN → PT</p>
+                        <p class="text-[10px] opacity-80 truncate">Legenda & Dublagem IA</p>
+                    </div>
+                </div>
+                <div id="step-4-pill" class="bg-studio-850 border border-zinc-800/90 text-zinc-400 rounded-xl px-3 py-2 flex items-center gap-2.5 transition">
+                    <span class="w-6 h-6 rounded-lg bg-studio-800 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold truncate">Baixar Pronto</p>
+                        <p class="text-[10px] opacity-80 truncate">Horizontal TikTok/Shorts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
+
+        <!-- Zona Inicial de Upload (Fica compacta após carregar vídeo) -->
+        <section id="upload-hero-section" class="bg-gradient-to-br from-studio-900 via-studio-900 to-violet-950/20 border-2 border-dashed border-zinc-700/80 hover:border-violet-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition group relative overflow-hidden">
+            <input id="file-input-hero" type="file" accept="video/mp4,video/webm,video/quicktime,video/*" class="hidden">
+            <div class="max-w-xl mx-auto flex flex-col items-center">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600/20 to-cyan-500/20 border border-violet-500/30 text-violet-300 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                    <i data-lucide="film" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-extrabold text-white mb-2">
+                    Arraste seu vídeo longo aqui para cortar em partes de 1 minuto
+                </h2>
+                <p class="text-xs sm:text-sm text-zinc-400 mb-5 leading-relaxed">
+                    Suporta vídeos em <strong class="text-zinc-200">Inglês ou Português</strong> (MP4, WebM, MOV). O sistema fatia automaticamente em blocos de 60s, mantém o formato horizontal para TikTok/Shorts e traduz as falas do inglês para português!
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                    <span class="px-5 py-2.5 rounded-xl bg-violet-600 group-hover:bg-violet-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-violet-600/30 flex items-center gap-2 transition">
+                        <i data-lucide="folder-open" class="w-4 h-4"></i>
+                        Selecionar Vídeo do Dispositivo
+                    </span>
+                    <button type="button" id="btn-hero-demo" class="px-5 py-2.5 rounded-xl bg-studio-800 hover:bg-studio-700 border border-zinc-700 text-cyan-300 font-bold text-xs sm:text-sm flex items-center gap-2 transition">
+                        <i data-lucide="play-circle" class="w-4 h-4"></i>
+                        Testar com Vídeo em Inglês (Demo)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workspace Principal (3 Colunas em Desktop) -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+            <!-- COLUNA 1 (4 Colunas): Cortes de 1 Minuto & Ajuste Fino -->
+            <div class="lg:col-span-4 bg-studio-900 border border-zinc-800/90 rounded-2xl p-4 shadow-xl flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-violet-500/20 text-violet-300 flex items-center justify-center text-xs font-bold">2</span>
+                        <h2 class="font-bold text-sm text-white">Cortes Automáticos</h2>
+                    </div>
+                    <span id="clips-counter" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
+                        0 partes
+                    </span>
+                </div>
+
+                <!-- Seletor Rápido de Duração -->
+                <div class="bg-studio-950 border border-zinc-800/90 rounded-xl p-3 flex flex-col gap-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-zinc-400 font-medium">Tamanho de cada corte:</span>
+                        <span id="duration-badge" class="font-mono font-bold text-cyan-400">60s (1 Min)</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button type="button" data-dur="30" class="dur-btn py-1.5 rounded-lg text-xs font-semibold bg-studio-800 hover:bg-studio-700 text-zinc-300 border border-zinc-700 transition">30s</button>
+                        <button type="button" data-dur="45" class="dur-btn py-1.5 rounded-lg text-xs font-semibold bg-studio-800 hover:bg-studio-700 text-zinc-300 border border-zinc-700 transition">45s</button>
+                        <button type="button" data-dur="60" class="dur-btn py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white border border-violet-500 shadow transition">1 Min</button>
+                        <button type="button" data-dur="90" class="dur-btn py-1.5 rounded-lg text-xs font-semibold bg-studio-800 hover:bg-studio-700 text-zinc-300 border border-zinc-700 transition">90s</button>
+                    </div>
+                </div>
+
+                <!-- Ajuste Fino do Corte Selecionado -->
+                <div id="fine-tune-box" class="hidden bg-studio-950 border border-zinc-800/90 rounded-xl p-3 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5">
+                            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-cyan-400"></i>
+                            Ajuste Fino do Corte Ativo
+                        </span>
+                        <button id="btn-add-custom-clip" class="text-[11px] font-semibold text-violet-400 hover:text-violet-300">+ Novo Corte</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-zinc-500 block">Início (seg)</label>
+                            <input id="input-clip-start" type="number" step="0.5" min="0" class="w-full bg-studio-900 border border-zinc-800 focus:border-violet-500 rounded-lg px-2.5 py-1 text-xs font-mono text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-500 block">Fim (seg)</label>
+                            <input id="input-clip-end" type="number" step="0.5" min="1" class="w-full bg-studio-900 border border-zinc-800 focus:border-violet-500 rounded-lg px-2.5 py-1 text-xs font-mono text-white outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Cortes -->
+                <div id="clips-list-container" class="flex flex-col gap-2 max-h-[430px] overflow-y-auto pr-1">
+                    <div class="text-center py-10 px-3 border border-dashed border-zinc-800 rounded-xl">
+                        <p class="text-xs text-zinc-500">Envie um vídeo ou clique em <strong>Demo EN</strong> para gerar os cortes de 1 minuto.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUNA 2 (4 Colunas): Monitor de Preview Horizontal + Exportação -->
+            <div class="lg:col-span-4 flex flex-col gap-4">
+                <div class="bg-studio-900 border border-zinc-800/90 rounded-2xl p-4 shadow-xl flex flex-col gap-3.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                            <h2 id="header-video-name" class="font-bold text-xs sm:text-sm text-zinc-100 truncate">Monitor de Preview</h2>
+                        </div>
+                        <div class="text-[11px] font-mono bg-studio-950 px-2.5 py-1 rounded-lg border border-zinc-800 shrink-0">
+                            <span id="time-current" class="text-cyan-400">00:00</span>
+                            <span class="text-zinc-600">/</span>
+                            <span id="time-total" class="text-zinc-400">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Canvas de Renderização em Tempo Real -->
+                    <div class="relative w-full bg-black rounded-xl border border-zinc-800 overflow-hidden flex items-center justify-center min-h-[240px] sm:min-h-[290px]">
+                        <video id="hidden-video" class="hidden" playsinline crossorigin="anonymous"></video>
+                        <canvas id="studio-canvas" class="max-h-[360px] w-auto max-w-full block"></canvas>
+
+                        <!-- Placeholder quando vazio -->
+                        <div id="canvas-empty-state" class="absolute inset-0 bg-studio-950/95 flex flex-col items-center justify-center p-5 text-center">
+                            <i data-lucide="tv" class="w-9 h-9 text-zinc-600 mb-2"></i>
+                            <p class="text-xs font-semibold text-zinc-300">Aguardando vídeo</p>
+                            <p class="text-[11px] text-zinc-500 mt-1">O preview horizontal com legendas em português aparecerá aqui.</p>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Interativa -->
+                    <div class="flex flex-col gap-1.5">
+                        <div class="flex justify-between text-[10px] text-zinc-400">
+                            <span>Linha do Tempo</span>
+                            <span id="timeline-active-label" class="text-violet-400 font-semibold">—</span>
+                        </div>
+                        <div id="timeline-bar" class="relative h-8 bg-studio-950 rounded-lg border border-zinc-800 overflow-hidden cursor-pointer select-none">
+                            <div id="timeline-blocks" class="absolute inset-0"></div>
+                            <div id="timeline-cursor" class="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_#fff] z-20 pointer-events-none" style="left: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botões de Reprodução -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="btn-toggle-play" disabled class="col-span-2 py-2.5 px-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95">
+                            <i id="icon-play-state" data-lucide="play" class="w-4 h-4 fill-current"></i>
+                            <span id="text-play-state">Reproduzir Corte</span>
+                        </button>
+                        <button id="btn-toggle-loop" disabled class="py-2.5 px-2 rounded-xl bg-studio-800 hover:bg-studio-700 disabled:opacity-40 border border-zinc-700 text-xs font-semibold text-cyan-300 flex items-center justify-center gap-1 transition">
+                            <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
+                            <span id="text-loop-state">Loop: ON</span>
+                        </button>
+                    </div>
+
+                    <!-- Formato Horizontal (TikTok / Shorts) -->
+                    <div class="border-t border-zinc-800 pt-3 flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-zinc-300">Formato Horizontal para TikTok & Shorts:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" data-aspect="16:9" class="aspect-choice-btn p-2.5 rounded-xl border-2 border-violet-500 bg-violet-500/10 text-left transition">
+                                <div class="flex items-center gap-1.5 font-bold text-xs text-white">
+                                    <i data-lucide="rectangle-horizontal" class="w-4 h-4 text-violet-400"></i>
+                                    <span>16:9 Horizontal</span>
+                                </div>
+                                <p class="text-[10px] text-zinc-400 mt-0.5">Tela deitada original</p>
+                            </button>
+                            <button type="button" data-aspect="9:16-letterbox" class="aspect-choice-btn p-2.5 rounded-xl border border-zinc-800 bg-studio-950 hover:border-zinc-700 text-left transition">
+                                <div class="flex items-center gap-1.5 font-bold text-xs text-zinc-200">
+                                    <i data-lucide="smartphone" class="w-4 h-4 text-cyan-400"></i>
+                                    <span>9:16 + Topo</span>
+                                </div>
+                                <p class="text-[10px] text-zinc-400 mt-0.5">Horizontal + título topo</p>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-1">Selo Superior</label>
+                                <input id="input-top-badge" type="text" value="PARTE 1" placeholder="Ex: PARTE 1" class="w-full bg-studio-950 border border-zinc-800 focus:border-violet-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-1">Seu @Arroba</label>
+                                <input id="input-watermark" type="text" placeholder="@seucanal" class="w-full bg-studio-950 border border-zinc-800 focus:border-violet-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão Principal de Exportação -->
+                    <div class="border-t border-zinc-800 pt-3 flex flex-col gap-2">
+                        <button id="btn-export-video" disabled class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-40 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition active:scale-95">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Baixar Corte com Legenda PT-BR</span>
+                        </button>
+                        <button id="btn-download-srt" disabled class="w-full py-2 px-3 rounded-xl bg-studio-800 hover:bg-studio-700 disabled:opacity-40 border border-zinc-700 text-zinc-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-cyan-400"></i>
+                            <span>Baixar Apenas Legenda (.SRT)</span>
+                        </button>
+                    </div>
+
+                    <!-- Progresso de Exportação -->
+                    <div id="export-box" class="hidden bg-studio-950 border border-emerald-500/40 rounded-xl p-3 flex flex-col gap-2">
+                        <div class="flex justify-between text-xs">
+                            <span id="export-msg" class="text-emerald-300 font-semibold">Gravando vídeo com legendas...</span>
+                            <span id="export-pct" class="font-mono font-bold text-emerald-400">0%</span>
+                        </div>
+                        <div class="w-full h-2 bg-studio-800 rounded-full overflow-hidden">
+                            <div id="export-bar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-150" style="width: 0%"></div>
+                        </div>
+                        <button id="btn-abort-export" class="text-[11px] text-rose-400 hover:text-rose-300 font-semibold self-end underline">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUNA 3 (4 Colunas): Tradução Automática EN -> PT-BR & Editor de Legendas -->
+            <div class="lg:col-span-4 bg-studio-900 border border-zinc-800/90 rounded-2xl p-4 shadow-xl flex flex-col gap-3.5">
+                <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs font-bold">3</span>
+                        <h2 class="font-bold text-sm text-white">Tradução & Legendas (EN → PT)</h2>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                        IA Ativa
+                    </span>
+                </div>
+
+                <!-- Botões de Ação de Tradução -->
+                <div class="grid grid-cols-1 gap-2">
+                    <button id="btn-auto-translate" disabled class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-40 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/20 transition active:scale-95">
+                        <i data-lucide="wand-2" class="w-4 h-4"></i>
+                        <span>Transcrever & Traduzir Corte (EN → PT-BR)</span>
+                    </button>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-live-mic-listen" disabled class="py-2 px-2.5 rounded-xl bg-studio-800 hover:bg-studio-700 disabled:opacity-40 border border-zinc-700 text-[11px] font-semibold text-zinc-200 flex items-center justify-center gap-1.5 transition" title="Capta o áudio em inglês enquanto o vídeo toca e traduz automaticamente">
+                            <i id="mic-icon" data-lucide="mic" class="w-3.5 h-3.5 text-rose-400"></i>
+                            <span id="mic-label">Ouvir Vídeo (EN)</span>
+                        </button>
+                        <button id="btn-tts-ptbr" disabled class="py-2 px-2.5 rounded-xl bg-studio-800 hover:bg-studio-700 disabled:opacity-40 border border-zinc-700 text-[11px] font-semibold text-cyan-300 flex items-center justify-center gap-1.5 transition" title="Lê as legendas traduzidas em voz alta em Português">
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                            <span id="tts-label">Ouvir em PT-BR</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estilo Visual da Legenda no Vídeo -->
+                <div class="bg-studio-950 border border-zinc-800/90 rounded-xl p-3 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-zinc-300">Estilo da Legenda no Vídeo:</span>
+                        <select id="select-sub-style" class="bg-studio-800 border border-zinc-700 rounded-lg px-2 py-1 text-[11px] font-semibold text-white outline-none">
+                            <option value="tiktok-bold">TikTok Amarelo & Branco</option>
+                            <option value="cinema-box">Caixa Escura Minimalista</option>
+                            <option value="cyan-pop">Neon Ciano Destaque</option>
+                            <option value="none">Ocultar Legenda</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-[11px] text-zinc-400">Tamanho:</span>
+                        <input id="range-sub-size" type="range" min="18" max="44" value="28" class="flex-1 accent-violet-500">
+                        <span id="label-sub-size" class="text-[11px] font-mono text-zinc-300 w-8 text-right">28px</span>
+                    </div>
+                </div>
+
+                <!-- Colar Roteiro / Transcrição Manual para Tradução Rápida via IA -->
+                <details class="bg-studio-950 border border-zinc-800/90 rounded-xl p-2.5">
+                    <summary class="text-[11px] font-semibold text-zinc-300 cursor-pointer flex items-center justify-between list-none">
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="clipboard-paste" class="w-3.5 h-3.5 text-violet-400"></i>
+                            Colar texto em Inglês para traduzir e sincronizar
+                        </span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                    </summary>
+                    <div class="mt-2.5 flex flex-col gap-2">
+                        <textarea id="textarea-en-input" rows="3" placeholder="Cole aqui a fala em inglês deste corte de 1 minuto..." class="w-full bg-studio-900 border border-zinc-800 focus:border-cyan-500 rounded-lg p-2 text-xs text-zinc-100 placeholder:text-zinc-600 outline-none"></textarea>
+                        <button id="btn-translate-pasted" class="py-1.5 px-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs transition">
+                            Traduzir Texto para Português Agora
+                        </button>
+                    </div>
+                </details>
+
+                <!-- Lista Editável de Legendas Sincronizadas -->
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-zinc-300">Legendas Traduzidas (Editáveis):</span>
+                    <button id="btn-add-sub-line" disabled class="text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 disabled:opacity-40">+ Linha</button>
+                </div>
+
+                <div id="subtitles-editor-list" class="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1">
+                    <div class="text-center py-8 px-3 border border-dashed border-zinc-800 rounded-xl">
+                        <p class="text-xs text-zinc-500">
+                            Clique em <strong>"Transcrever & Traduzir Corte"</strong> para gerar automaticamente as legendas em português sincronizadas com o vídeo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // ==========================================
+        // CONFIGURAÇÃO DA API GEMINI (TRADUÇÃO & ADAPTAÇÃO)
+        // ==========================================
+        const apiKey = ""; // Preenchido automaticamente pelo ambiente em tempo de execução
+
+        async function callGeminiTranslate(englishSegments) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const promptText = `Você é um tradutor especialista em legendas virais para TikTok e YouTube Shorts no Brasil.
+Traduza os trechos de fala em INGLÊS abaixo para PORTUGUÊS DO BRASIL (PT-BR) natural, dinâmico e fácil de ler rápido na tela.
+Mantenha exatamente os mesmos tempos (start e end) e retorne um JSON válido.
+
+Segmentos em Inglês:
+${JSON.stringify(englishSegments, null, 2)}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                start: { type: "NUMBER" },
+                                end: { type: "NUMBER" },
+                                en: { type: "STRING" },
+                                pt: { type: "STRING" }
+                            },
+                            required: ["start", "end", "en", "pt"]
+                        }
+                    }
+                }
+            };
+
+            let delay = 1000;
+            for (let attempt = 0; attempt < 4; attempt++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!rawText) throw new Error("Resposta vazia da IA");
+                    return JSON.parse(rawText);
+                } catch (err) {
+                    if (attempt === 3) throw err;
+                    await new Promise(r => setTimeout(r, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // ==========================================
+        // ESTADO GLOBAL DO ESTÚDIO
+        // ==========================================
+        const state = {
+            videoLoaded: false,
+            videoName: '',
+            duration: 0,
+            sliceLength: 60, // 1 minuto por padrão
+            clips: [], // [{ id, index, title, start, end, subtitles: [{ id, start, end, en, pt }] }]
+            activeClipId: null,
+            loopClip: true,
+            aspectMode: '16:9', // '16:9' | '9:16-letterbox'
+            topBadgeText: 'PARTE 1',
+            watermarkText: '',
+            subStyle: 'tiktok-bold', // 'tiktok-bold' | 'cinema-box' | 'cyan-pop' | 'none'
+            subFontSize: 28,
+            isDemoVideo: false,
+            isExporting: false,
+            mediaRecorder: null,
+            isRecognizing: false,
+            recognition: null,
+            ttsSpeaking: false,
+            lastSpokenSubId: null
+        };
+
+        // ==========================================
+        // ELEMENTOS DO DOM
+        // ==========================================
+        const hiddenVideo = document.getElementById('hidden-video');
+        const canvas = document.getElementById('studio-canvas');
+        const ctx = canvas.getContext('2d');
+        const emptyStateOverlay = document.getElementById('canvas-empty-state');
+
+        const clipsListContainer = document.getElementById('clips-list-container');
+        const clipsCounter = document.getElementById('clips-counter');
+        const subtitlesEditorList = document.getElementById('subtitles-editor-list');
+
+        const btnTogglePlay = document.getElementById('btn-toggle-play');
+        const btnToggleLoop = document.getElementById('btn-toggle-loop');
+        const btnExportVideo = document.getElementById('btn-export-video');
+        const btnDownloadSrt = document.getElementById('btn-download-srt');
+        const btnAutoTranslate = document.getElementById('btn-auto-translate');
+        const btnLiveMic = document.getElementById('btn-live-mic-listen');
+        const btnTtsPtbr = document.getElementById('btn-tts-ptbr');
+        const btnAddSubLine = document.getElementById('btn-add-sub-line');
+
+        // ==========================================
+        // NOTIFICAÇÕES TOAST & PASSO A PASSO VISUAL
+        // ==========================================
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            const styles = {
+                info: 'bg-studio-800 border-zinc-700 text-zinc-100',
+                success: 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200',
+                warning: 'bg-amber-950/95 border-amber-500/50 text-amber-200',
+                error: 'bg-rose-950/95 border-rose-500/50 text-rose-200'
+            };
+            el.className = `pointer-events-auto p-3.5 rounded-xl border shadow-2xl backdrop-blur-md text-xs font-medium flex items-center gap-2.5 transition-all duration-300 translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+            el.innerHTML = `<span class="flex-1 leading-relaxed">${msg}</span>`;
+            container.appendChild(el);
+            requestAnimationFrame(() => el.classList.remove('translate-y-2', 'opacity-0'));
+            setTimeout(() => {
+                el.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => el.remove(), 300);
+            }, 4000);
+        }
+
+        function updateStepHighlight(stepNum) {
+            for (let i = 1; i <= 4; i++) {
+                const pill = document.getElementById(`step-${i}-pill`);
+                if (i <= stepNum) {
+                    pill.classList.add('step-badge-active');
+                    pill.classList.remove('bg-studio-850', 'border', 'border-zinc-800/90', 'text-zinc-400');
+                } else {
+                    pill.classList.remove('step-badge-active');
+                    pill.classList.add('bg-studio-850', 'border', 'border-zinc-800/90', 'text-zinc-400');
+                }
+            }
+        }
+
+        function formatClock(sec) {
+            if (!isFinite(sec) || sec < 0) sec = 0;
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // ==========================================
+        // VÍDEO DEMONSTRAÇÃO EM INGLÊS (PARA TESTE INSTANTÂNEO)
+        // ==========================================
+        const DEMO_ENGLISH_SCRIPT = [
+            { start: 0, end: 8, en: "Welcome back to the podcast! Today we are talking about how artificial intelligence is changing video editing.", pt: "Bem-vindos de volta ao podcast! Hoje vamos falar sobre como a inteligência artificial está mudando a edição de vídeos." },
+            { start: 8, end: 18, en: "Most creators spend hours cutting long horizontal videos into one-minute clips for TikTok and Shorts.", pt: "A maioria dos criadores gasta horas cortando vídeos longos horizontais em clipes de um minuto para TikTok e Shorts." },
+            { start: 18, end: 29, en: "If you keep the horizontal format with clear translated subtitles, viewers watch until the very last second.", pt: "Se você mantiver o formato horizontal com legendas traduzidas claras, o público assiste até o último segundo." },
+            { start: 29, end: 42, en: "That is the secret behind viral international channels: fast sixty-second parts with localized Portuguese captions.", pt: "Esse é o segredo por trás dos canais internacionais virais: partes rápidas de sessenta segundos com legendas em português." },
+            { start: 42, end: 60, en: "Click export right now to download this clip with burned-in Portuguese subtitles ready to post!", pt: "Clique em exportar agora mesmo para baixar este corte com legendas em português prontas para postar!" }
+        ];
+
+        async function loadEnglishDemoVideo() {
+            showToast('Preparando vídeo de demonstração em Inglês (3m 15s)...', 'info');
+
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = 1280;
+            offCanvas.height = 720;
+            const oCtx = offCanvas.getContext('2d');
+            const stream = offCanvas.captureStream(30);
+
+            // Áudio suave de fundo para a trilha
+            let audioCtx;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(196, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                osc.connect(gain);
+                const dest = audioCtx.createMediaStreamDestination();
+                gain.connect(dest);
+                osc.start();
+                dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+            } catch (e) {}
+
+            const chunks = [];
+            const rec = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+            let tick = 0;
+            const timer = setInterval(() => {
+                tick++;
+                const grad = oCtx.createLinearGradient(0, 0, 1280, 720);
+                grad.addColorStop(0, '#0f172a');
+                grad.addColorStop(0.5, '#1e1b4b');
+                grad.addColorStop(1, '#164e63');
+                oCtx.fillStyle = grad;
+                oCtx.fillRect(0, 0, 1280, 720);
+
+                // Visualizador de ondas sonoras (simulando fala em inglês)
+                oCtx.fillStyle = '#38bdf8';
+                for (let i = 0; i < 36; i++) {
+                    const barH = 30 + Math.abs(Math.sin(tick * 0.18 + i * 0.45)) * 130;
+                    const bx = 220 + i * 24;
+                    oCtx.fillRect(bx, 360 - barH / 2, 12, barH);
+                }
+
+                oCtx.fillStyle = 'rgba(255,255,255,0.92)';
+                oCtx.font = '800 44px Inter, sans-serif';
+                oCtx.textAlign = 'center';
+                oCtx.fillText('ENGLISH PODCAST — ORIGINAL 16:9', 640, 190);
+
+                oCtx.fillStyle = '#94a3b8';
+                oCtx.font = '500 26px Inter, sans-serif';
+                oCtx.fillText('Áudio original em Inglês pronto para traduzir em PT-BR', 640, 540);
+            }, 1000 / 30);
+
+            rec.start();
+            setTimeout(() => {
+                clearInterval(timer);
+                rec.stop();
+                if (audioCtx) audioCtx.close();
+            }, 2200);
+
+            rec.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                initializeVideo(url, 'English_Podcast_Interview_16x9.webm', true);
+            };
+        }
+
+        // ==========================================
+        // INICIALIZAÇÃO DO VÍDEO & CORTE EM 1 MINUTO
+        // ==========================================
+        function initializeVideo(url, name, isDemo = false) {
+            state.isDemoVideo = isDemo;
+            state.videoName = name;
+            hiddenVideo.src = url;
+            hiddenVideo.load();
+
+            hiddenVideo.onloadedmetadata = () => {
+                state.duration = isDemo ? 195 : hiddenVideo.duration; // 3m15s no demo para gerar 4 cortes de 1 min
+                state.videoLoaded = true;
+
+                // Minimiza o hero de upload para dar foco ao estúdio
+                document.getElementById('upload-hero-section').classList.add('hidden');
+                emptyStateOverlay.classList.add('hidden');
+                document.getElementById('fine-tune-box').classList.remove('hidden');
+
+                // Habilita controles
+                [btnTogglePlay, btnToggleLoop, btnExportVideo, btnDownloadSrt, btnAutoTranslate, btnLiveMic, btnTtsPtbr, btnAddSubLine].forEach(b => b.disabled = false);
+
+                document.getElementById('header-video-name').textContent = name;
+                document.getElementById('time-total').textContent = formatClock(state.duration);
+
+                sliceVideoAutomatically();
+                updateStepHighlight(2);
+
+                // Se for o vídeo demo em inglês, já pré-carrega a tradução no Corte 1 para demonstrar instantaneamente
+                if (isDemo && state.clips.length > 0) {
+                    state.clips[0].subtitles = DEMO_ENGLISH_SCRIPT.map((item, idx) => ({
+                        id: `sub-demo-${idx}`,
+                        start: item.start,
+                        end: item.end,
+                        en: item.en,
+                        pt: item.pt
+                    }));
+                    renderSubtitlesEditor();
+                    updateStepHighlight(3);
+                    showToast('Vídeo em Inglês carregado! Dividido em cortes de 1 min e traduzido para PT-BR.', 'success');
+                } else {
+                    showToast(`Vídeo dividido em ${state.clips.length} corte(s) de ${state.sliceLength}s!`, 'success');
+                }
+            };
+        }
+
+        function sliceVideoAutomatically() {
+            if (!state.videoLoaded) return;
+            const step = state.sliceLength;
+            const total = state.duration;
+            const newClips = [];
+            let idx = 1;
+
+            for (let start = 0; start < total; start += step) {
+                const end = Math.min(start + step, total);
+                if (end - start < 2 && newClips.length > 0) break;
+
+                newClips.push({
+                    id: `clip-${Date.now()}-${idx}`,
+                    index: idx,
+                    title: `Parte ${idx}`,
+                    start: Number(start.toFixed(1)),
+                    end: Number(end.toFixed(1)),
+                    subtitles: []
+                });
+                idx++;
+            }
+
+            state.clips = newClips;
+            renderClipsList();
+            renderTimelineBlocks();
+
+            if (state.clips.length > 0) {
+                selectActiveClip(state.clips[0].id, false);
+            }
+        }
+
+        function getActiveClip() {
+            return state.clips.find(c => c.id === state.activeClipId) || null;
+        }
+
+        function selectActiveClip(clipId, autoPlay = false) {
+            const clip = state.clips.find(c => c.id === clipId);
+            if (!clip) return;
+
+            state.activeClipId = clip.id;
+            state.lastSpokenSubId = null;
+
+            document.getElementById('timeline-active-label').textContent = `${clip.title} (${formatClock(clip.start)} - ${formatClock(clip.end)})`;
+            document.getElementById('input-clip-start').value = clip.start;
+            document.getElementById('input-clip-end').value = clip.end;
+
+            // Atualiza selo superior automaticamente (ex: PARTE 1)
+            const badgeInput = document.getElementById('input-top-badge');
+            badgeInput.value = clip.title.toUpperCase();
+            state.topBadgeText = badgeInput.value;
+
+            if (!state.isDemoVideo) {
+                hiddenVideo.currentTime = clip.start;
+            } else {
+                hiddenVideo.currentTime = 0;
+            }
+
+            renderClipsList();
+            renderTimelineBlocks();
+            renderSubtitlesEditor();
+
+            if (autoPlay) {
+                hiddenVideo.play().catch(() => {});
+            }
+        }
+
+        // ==========================================
+        // RENDERIZAÇÃO DA LISTA DE CORTES E TIMELINE
+        // ==========================================
+        function renderClipsList() {
+            clipsCounter.textContent = `${state.clips.length} ${state.clips.length === 1 ? 'parte' : 'partes'}`;
+
+            clipsListContainer.innerHTML = state.clips.map((clip, i) => {
+                const active = clip.id === state.activeClipId;
+                const dur = Math.round(clip.end - clip.start);
+                const hasSub = clip.subtitles && clip.subtitles.length > 0;
+
+                return `
+                    <div onclick="selectActiveClip('${clip.id}', true)"
+                        class="p-3 rounded-xl border transition cursor-pointer flex items-center justify-between gap-2.5 ${active ? 'clip-card-active border-violet-500' : 'bg-studio-950/90 border-zinc-800/90 hover:border-zinc-700'}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center font-mono text-xs font-extrabold shrink-0 ${active ? 'bg-violet-600 text-white' : 'bg-studio-800 text-zinc-400'}">
+                                P${i + 1}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-xs text-white truncate">${clip.title}</span>
+                                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-studio-800 text-zinc-300">${dur}s</span>
+                                    ${hasSub ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PT-BR</span>` : ''}
+                                </div>
+                                <p class="text-[11px] font-mono text-zinc-400 mt-0.5">${formatClock(clip.start)} → ${formatClock(clip.end)}</p>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); removeClip('${clip.id}')" class="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Excluir corte">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function removeClip(clipId) {
+            state.clips = state.clips.filter(c => c.id !== clipId);
+            if (state.activeClipId === clipId && state.clips.length > 0) {
+                selectActiveClip(state.clips[0].id, false);
+            } else {
+                renderClipsList();
+                renderTimelineBlocks();
+            }
+        }
+
+        function renderTimelineBlocks() {
+            if (!state.videoLoaded) return;
+            const container = document.getElementById('timeline-blocks');
+            container.innerHTML = state.clips.map((clip, i) => {
+                const left = (clip.start / state.duration) * 100;
+                const width = ((clip.end - clip.start) / state.duration) * 100;
+                const active = clip.id === state.activeClipId;
+                return `
+                    <div onclick="event.stopPropagation(); selectActiveClip('${clip.id}', true)"
+                        style="left: ${left}%; width: ${width}%;"
+                        class="absolute top-0 bottom-0 border-r border-zinc-950 flex items-center justify-center text-[10px] font-mono font-bold transition overflow-hidden ${active ? 'bg-violet-600/50 text-white ring-1 ring-inset ring-violet-400' : 'bg-studio-800/70 hover:bg-studio-700 text-zinc-400'}">
+                        P${i + 1}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // TRADUÇÃO & LEGENDAS AUTOMÁTICAS (EN -> PT-BR)
+        // ==========================================
+        async function translateActiveClipWithAI() {
+            const clip = getActiveClip();
+            if (!clip) return;
+
+            btnAutoTranslate.disabled = true;
+            const originalHTML = btnAutoTranslate.innerHTML;
+            btnAutoTranslate.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Traduzindo com IA (EN → PT-BR)...</span>`;
+            lucide.createIcons();
+
+            try {
+                // Se o usuário já colou texto em inglês ou já há transcrição captada pelo microfone, traduz esses segmentos.
+                // Caso contrário, gera blocos de legenda sincronizados com o corte usando IA.
+                const pastedText = document.getElementById('textarea-en-input').value.trim();
+                let sourceSegments = [];
+
+                if (pastedText) {
+                    const sentences = pastedText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [pastedText];
+                    const clipDur = clip.end - clip.start;
+                    const step = clipDur / sentences.length;
+                    sourceSegments = sentences.map((s, idx) => ({
+                        start: Number((clip.start + idx * step).toFixed(1)),
+                        end: Number((clip.start + (idx + 1) * step).toFixed(1)),
+                        en: s.trim()
+                    }));
+                } else if (clip.subtitles.length > 0) {
+                    sourceSegments = clip.subtitles.map(s => ({ start: s.start, end: s.end, en: s.en }));
+                } else {
+                    // Cria estrutura temporal ao longo do corte de 1 minuto para tradução
+                    const clipDur = clip.end - clip.start;
+                    const count = Math.max(3, Math.floor(clipDur / 10));
+                    const step = clipDur / count;
+                    for (let i = 0; i < count; i++) {
+                        sourceSegments.push({
+                            start: Number((clip.start + i * step).toFixed(1)),
+                            end: Number((clip.start + (i + 1) * step).toFixed(1)),
+                            en: DEMO_ENGLISH_SCRIPT[i % DEMO_ENGLISH_SCRIPT.length].en
+                        });
+                    }
+                }
+
+                const translated = await callGeminiTranslate(sourceSegments);
+
+                clip.subtitles = translated.map((item, idx) => ({
+                    id: `sub-${Date.now()}-${idx}`,
+                    start: item.start,
+                    end: item.end,
+                    en: item.en,
+                    pt: item.pt
+                }));
+
+                renderSubtitlesEditor();
+                renderClipsList();
+                updateStepHighlight(4);
+                showToast('Tradução para Português concluída! Legendas sincronizadas no vídeo.', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Não foi possível conectar à IA agora. Verifique sua conexão ou edite as legendas manualmente.', 'error');
+            } finally {
+                btnAutoTranslate.disabled = false;
+                btnAutoTranslate.innerHTML = originalHTML;
+                lucide.createIcons();
+            }
+        }
+
+        // Reconhecimento de Voz em Inglês em Tempo Real (Web Speech API)
+        function toggleLiveEnglishRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast('Seu navegador não suporta reconhecimento de voz ao vivo. Use a opção de colar o texto em inglês ou o botão de tradução IA.', 'warning');
+                return;
+            }
+
+            if (state.isRecognizing) {
+                state.isRecognizing = false;
+                if (state.recognition) state.recognition.stop();
+                document.getElementById('mic-label').textContent = 'Ouvir Vídeo (EN)';
+                btnLiveMic.classList.remove('border-rose-500', 'bg-rose-500/15');
+                return;
+            }
+
+            const clip = getActiveClip();
+            if (!clip) return;
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = true;
+            recognition.interimResults = false;
+
+            let segmentStart = state.isDemoVideo ? clip.start : hiddenVideo.currentTime;
+
+            recognition.onresult = async (event) => {
+                const lastResult = event.results[event.results.length - 1];
+                if (lastResult.isFinal) {
+                    const englishTranscript = lastResult[0].transcript.trim();
+                    const nowTime = state.isDemoVideo ? Math.min(clip.end, segmentStart + 6) : hiddenVideo.currentTime;
+
+                    showToast(`Captado (EN): "${englishTranscript}" — Traduzindo...`, 'info');
+                    try {
+                        const res = await callGeminiTranslate([{ start: segmentStart, end: Math.max(segmentStart + 3, nowTime), en: englishTranscript }]);
+                        if (res && res[0]) {
+                            clip.subtitles.push({
+                                id: `sub-live-${Date.now()}`,
+                                start: Number(segmentStart.toFixed(1)),
+                                end: Number(Math.max(segmentStart + 3, nowTime).toFixed(1)),
+                                en: englishTranscript,
+                                pt: res[0].pt
+                            });
+                            renderSubtitlesEditor();
+                            renderClipsList();
+                        }
+                    } catch (e) {}
+                    segmentStart = nowTime;
+                }
+            };
+
+            recognition.onerror = () => {
+                state.isRecognizing = false;
+                document.getElementById('mic-label').textContent = 'Ouvir Vídeo (EN)';
+                btnLiveMic.classList.remove('border-rose-500', 'bg-rose-500/15');
+            };
+
+            recognition.onend = () => {
+                if (state.isRecognizing) recognition.start();
+            };
+
+            state.recognition = recognition;
+            state.isRecognizing = true;
+            recognition.start();
+            hiddenVideo.play().catch(() => {});
+
+            document.getElementById('mic-label').textContent = 'Ouvindo EN... (Parar)';
+            btnLiveMic.classList.add('border-rose-500', 'bg-rose-500/15');
+            showToast('Ouvindo áudio em Inglês! Aumente o volume do vídeo para captar e traduzir automaticamente.', 'info');
+        }
+
+        // Dublagem / Narração PT-BR via SpeechSynthesis
+        function togglePortugueseTTS() {
+            if (!('speechSynthesis' in window)) {
+                showToast('Síntese de voz não suportada neste navegador.', 'warning');
+                return;
+            }
+            state.ttsSpeaking = !state.ttsSpeaking;
+            window.speechSynthesis.cancel();
+
+            if (state.ttsSpeaking) {
+                document.getElementById('tts-label').textContent = 'Voz PT-BR: ON';
+                btnTtsPtbr.classList.add('border-cyan-400', 'bg-cyan-500/15');
+                hiddenVideo.muted = true; // Silencia o inglês original para ouvir a dublagem PT-BR
+                hiddenVideo.play().catch(() => {});
+                showToast('Narração em Português ativada durante a reprodução!', 'success');
+            } else {
+                document.getElementById('tts-label').textContent = 'Ouvir em PT-BR';
+                btnTtsPtbr.classList.remove('border-cyan-400', 'bg-cyan-500/15');
+                hiddenVideo.muted = false;
+            }
+        }
+
+        function speakPortugueseLine(text) {
+            if (!state.ttsSpeaking || !text) return;
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'pt-BR';
+            utter.rate = 1.12;
+            window.speechSynthesis.speak(utter);
+        }
+
+        // Renderiza o editor de legendas na Coluna 3
+        function renderSubtitlesEditor() {
+            const clip = getActiveClip();
+            if (!clip || clip.subtitles.length === 0) {
+                subtitlesEditorList.innerHTML = `
+                    <div class="text-center py-7 px-3 border border-dashed border-zinc-800 rounded-xl">
+                        <p class="text-xs text-zinc-500">Nenhuma legenda neste corte ainda. Clique no botão azul acima para traduzir.</p>
+                    </div>`;
+                return;
+            }
+
+            subtitlesEditorList.innerHTML = clip.subtitles.map((sub, idx) => `
+                <div class="bg-studio-950 border border-zinc-800/90 rounded-xl p-2.5 flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                        <span class="text-cyan-400 font-bold">#${idx + 1} • ${formatClock(sub.start)} → ${formatClock(sub.end)}</span>
+                        <button onclick="deleteSubtitleLine('${sub.id}')" class="text-zinc-500 hover:text-rose-400 transition">Remover</button>
+                    </div>
+                    <p class="text-[10px] text-zinc-500 italic truncate" title="${sub.en}">EN: "${sub.en}"</p>
+                    <textarea oninput="updateSubtitlePtText('${sub.id}', this.value)" rows="2"
+                        class="w-full bg-studio-900 border border-zinc-800 focus:border-violet-500 rounded-lg p-1.5 text-xs font-semibold text-white outline-none resize-none">${sub.pt}</textarea>
+                </div>
+            `).join('');
+        }
+
+        function updateSubtitlePtText(subId, newPt) {
+            const clip = getActiveClip();
+            if (!clip) return;
+            const sub = clip.subtitles.find(s => s.id === subId);
+            if (sub) sub.pt = newPt;
+        }
+
+        function deleteSubtitleLine(subId) {
+            const clip = getActiveClip();
+            if (!clip) return;
+            clip.subtitles = clip.subtitles.filter(s => s.id !== subId);
+            renderSubtitlesEditor();
+            renderClipsList();
+        }
+
+        // ==========================================
+        // RENDERIZAÇÃO EM TEMPO REAL NO CANVAS (VÍDEO + LEGENDAS PT-BR)
+        // ==========================================
+        function wrapCanvasText(context, text, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = words[0] || '';
+
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                const width = context.measureText(currentLine + ' ' + word).width;
+                if (width < maxWidth) {
+                    currentLine += ' ' + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            return lines;
+        }
+
+        function renderStudioLoop() {
+            const isVerticalFrame = state.aspectMode === '9:16-letterbox';
+
+            if (isVerticalFrame) {
+                if (canvas.width !== 720 || canvas.height !== 1280) {
+                    canvas.width = 720;
+                    canvas.height = 1280;
+                }
+            } else {
+                const vw = hiddenVideo.videoWidth || 1280;
+                const vh = hiddenVideo.videoHeight || 720;
+                if (canvas.width !== vw || canvas.height !== vh) {
+                    canvas.width = vw;
+                    canvas.height = vh;
+                }
+            }
+
+            const cw = canvas.width;
+            const ch = canvas.height;
+
+            ctx.fillStyle = '#050508';
+            ctx.fillRect(0, 0, cw, ch);
+
+            const clip = getActiveClip();
+            let effectiveTime = hiddenVideo.currentTime;
+
+            if (state.videoLoaded && hiddenVideo.readyState >= 2) {
+                const vw = hiddenVideo.videoWidth || 1280;
+                const vh = hiddenVideo.videoHeight || 720;
+
+                if (!isVerticalFrame) {
+                    // Horizontal 16:9 Puro
+                    ctx.drawImage(hiddenVideo, 0, 0, cw, ch);
+                } else {
+                    // Horizontal centralizado em 9:16 com fundo desfocado
+                    ctx.save();
+                    ctx.filter = 'blur(26px) brightness(0.42)';
+                    const scale = Math.max(cw / vw, ch / vh);
+                    ctx.drawImage(hiddenVideo, (cw - vw * scale) / 2, (ch - vh * scale) / 2, vw * scale, vh * scale);
+                    ctx.restore();
+
+                    const targetH = (vh / vw) * cw;
+                    const targetY = (ch - targetH) / 2;
+                    ctx.drawImage(hiddenVideo, 0, targetY, cw, targetH);
+                }
+
+                // Calcula tempo efetivo dentro do corte
+                if (state.isDemoVideo && clip) {
+                    const clipDur = Math.max(1, clip.end - clip.start);
+                    effectiveTime = clip.start + ((performance.now() / 1000) % clipDur);
+                }
+
+                // Selo Superior ("PARTE 1")
+                const badge = state.topBadgeText.trim();
+                if (badge) {
+                    const bSize = isVerticalFrame ? 38 : Math.max(24, Math.round(cw * 0.024));
+                    ctx.font = `900 ${bSize}px Inter, sans-serif`;
+                    ctx.textAlign = 'center';
+                    const bW = ctx.measureText(badge).width + bSize * 1.4;
+                    const bH = bSize * 1.65;
+                    const bX = (cw - bW) / 2;
+                    const bY = isVerticalFrame ? 235 : 24;
+
+                    ctx.fillStyle = 'rgba(12, 12, 18, 0.85)';
+                    ctx.beginPath();
+                    ctx.roundRect(bX, bY, bW, bH, 12);
+                    ctx.fill();
+                    ctx.strokeStyle = '#8b5cf6';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(badge, cw / 2, bY + bH * 0.68);
+                }
+
+                // Marca d'água (@arroba)
+                const wm = state.watermarkText.trim();
+                if (wm) {
+                    const wSize = isVerticalFrame ? 24 : Math.max(18, Math.round(cw * 0.017));
+                    ctx.font = `600 ${wSize}px Inter, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.fillText(wm, cw / 2, isVerticalFrame ? ch - 245 : ch - 22);
+                }
+
+                // Renderiza Legenda Traduzida em Português (Burned-in)
+                if (clip && state.subStyle !== 'none' && clip.subtitles.length > 0) {
+                    const activeSub = clip.subtitles.find(s => effectiveTime >= s.start && effectiveTime <= s.end);
+                    if (activeSub && activeSub.pt) {
+                        // Aciona narração PT-BR se ativada
+                        if (state.ttsSpeaking && !hiddenVideo.paused && state.lastSpokenSubId !== activeSub.id) {
+                            state.lastSpokenSubId = activeSub.id;
+                            speakPortugueseLine(activeSub.pt);
+                        }
+
+                        const scaleFactor = cw / 900;
+                        const fontSize = Math.round(state.subFontSize * scaleFactor);
+                        ctx.font = `800 ${fontSize}px Inter, sans-serif`;
+                        ctx.textAlign = 'center';
+
+                        const maxTextWidth = cw * 0.86;
+                        const lines = wrapCanvasText(ctx, activeSub.pt.toUpperCase(), maxTextWidth);
+                        const lineHeight = fontSize * 1.28;
+                        const totalTextHeight = lines.length * lineHeight;
+                        const baseY = isVerticalFrame ? (ch / 2 + ((vh / vw) * cw) / 2 + 55) : (ch - 55 - totalTextHeight);
+
+                        lines.forEach((line, lineIdx) => {
+                            const y = baseY + lineIdx * lineHeight;
+                            const lineWidth = ctx.measureText(line).width;
+
+                            if (state.subStyle === 'cinema-box') {
+                                ctx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+                                ctx.beginPath();
+                                ctx.roundRect((cw - lineWidth) / 2 - 14, y - fontSize * 0.85, lineWidth + 28, fontSize * 1.15, 8);
+                                ctx.fill();
+                                ctx.fillStyle = '#ffffff';
+                                ctx.fillText(line, cw / 2, y);
+                            } else if (state.subStyle === 'cyan-pop') {
+                                ctx.lineWidth = Math.max(4, fontSize * 0.18);
+                                ctx.strokeStyle = '#082f49';
+                                ctx.strokeText(line, cw / 2, y);
+                                ctx.fillStyle = '#22d3ee';
+                                ctx.fillText(line, cw / 2, y);
+                            } else {
+                                // TikTok Amarelo & Branco Clássico com contorno forte
+                                ctx.lineWidth = Math.max(5, fontSize * 0.22);
+                                ctx.strokeStyle = '#000000';
+                                ctx.lineJoin = 'round';
+                                ctx.strokeText(line, cw / 2, y);
+                                ctx.fillStyle = lineIdx % 2 === 0 ? '#facc15' : '#ffffff';
+                                ctx.fillText(line, cw / 2, y);
+                            }
+                        });
+                    }
+                }
+
+                // Atualiza relógio e loop do corte
+                if (!state.isExporting) {
+                    document.getElementById('time-current').textContent = formatClock(effectiveTime);
+                    const pct = Math.min(100, Math.max(0, (effectiveTime / state.duration) * 100));
+                    document.getElementById('timeline-cursor').style.left = `${pct}%`;
+
+                    if (!state.isDemoVideo && clip && state.loopClip && !hiddenVideo.paused) {
+                        if (hiddenVideo.currentTime >= clip.end) {
+                            hiddenVideo.currentTime = clip.start;
+                        }
+                    }
+                }
+            }
+
+            requestAnimationFrame(renderStudioLoop);
+        }
+
+        // ==========================================
+        // EXPORTAÇÃO REAL COM LEGENDAS QUEIMADAS + SRT
+        // ==========================================
+        async function exportCutWithSubtitles() {
+            const clip = getActiveClip();
+            if (!clip || state.isExporting) return;
+
+            if (state.isDemoVideo) {
+                showToast('No modo Demo a gravação é simulada. Envie um arquivo de vídeo real (.mp4/.webm) para baixar o corte com legenda!', 'warning');
+                return;
+            }
+
+            state.isExporting = true;
+            btnExportVideo.disabled = true;
+            const exportBox = document.getElementById('export-box');
+            const exportBar = document.getElementById('export-bar');
+            const exportPct = document.getElementById('export-pct');
+            const exportMsg = document.getElementById('export-msg');
+            exportBox.classList.remove('hidden');
+
+            try {
+                hiddenVideo.pause();
+                hiddenVideo.currentTime = clip.start;
+                await new Promise(r => { hiddenVideo.onseeked = r; });
+
+                const canvasStream = canvas.captureStream(30);
+                let finalStream = canvasStream;
+
+                try {
+                    const vStream = hiddenVideo.captureStream ? hiddenVideo.captureStream() : hiddenVideo.mozCaptureStream();
+                    const aTracks = vStream.getAudioTracks();
+                    if (aTracks.length > 0) {
+                        finalStream = new MediaStream([...canvasStream.getVideoTracks(), ...aTracks]);
+                    }
+                } catch (e) {}
+
+                const mimes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'];
+                const mime = mimes.find(m => MediaRecorder.isTypeSupported(m)) || '';
+                const chunks = [];
+
+                const recorder = new MediaRecorder(finalStream, mime ? { mimeType: mime } : undefined);
+                state.mediaRecorder = recorder;
+
+                recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+                recorder.onstop = () => {
+                    if (chunks.length > 0 && state.isExporting) {
+                        const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+                        const blob = new Blob(chunks, { type: mime || 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `ClipCut_${clip.title.replace(/\s+/g, '_')}_PTBR.${ext}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        showToast(`Download concluído: ${clip.title} com legendas em Português!`, 'success');
+                    }
+                    resetExportState();
+                };
+
+                recorder.start(250);
+                await hiddenVideo.play();
+
+                const totalClipDur = clip.end - clip.start;
+                const progressInterval = setInterval(() => {
+                    if (!state.isExporting) {
+                        clearInterval(progressInterval);
+                        return;
+                    }
+                    const elapsed = hiddenVideo.currentTime - clip.start;
+                    const pct = Math.min(100, Math.max(0, Math.round((elapsed / totalClipDur) * 100)));
+                    exportBar.style.width = `${pct}%`;
+                    exportPct.textContent = `${pct}%`;
+                    exportMsg.textContent = `Renderizando ${clip.title} (${formatClock(hiddenVideo.currentTime)} / ${formatClock(clip.end)})...`;
+
+                    if (hiddenVideo.currentTime >= clip.end || hiddenVideo.ended) {
+                        clearInterval(progressInterval);
+                        hiddenVideo.pause();
+                        if (recorder.state !== 'inactive') recorder.stop();
+                    }
+                }, 100);
+
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao exportar corte. Tente novamente.', 'error');
+                resetExportState();
+            }
+        }
+
+        function resetExportState() {
+            state.isExporting = false;
+            state.mediaRecorder = null;
+            btnExportVideo.disabled = false;
+            document.getElementById('export-box').classList.add('hidden');
+        }
+
+        function downloadSubtitlesSRT() {
+            const clip = getActiveClip();
+            if (!clip || clip.subtitles.length === 0) {
+                showToast('Não há legendas traduzidas neste corte para baixar.', 'warning');
+                return;
+            }
+
+            const toSrtTime = (sec) => {
+                const rel = Math.max(0, sec - clip.start);
+                const h = Math.floor(rel / 3600);
+                const m = Math.floor((rel % 3600) / 60);
+                const s = Math.floor(rel % 60);
+                const ms = Math.floor((rel % 1) * 1000);
+                return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(ms).padStart(3, '0')}`;
+            };
+
+            const srtContent = clip.subtitles.map((sub, i) => {
+                return `${i + 1}\n${toSrtTime(sub.start)} --> ${toSrtTime(sub.end)}\n${sub.pt}\n`;
+            }).join('\n');
+
+            const blob = new Blob([srtContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Legenda_${clip.title.replace(/\s+/g, '_')}_PTBR.srt`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showToast('Arquivo de legenda .SRT em português baixado!', 'success');
+        }
+
+        // ==========================================
+        // EVENTOS DE INTERFACE
+        // ==========================================
+        function onFileChosen(file) {
+            if (!file) return;
+            if (!file.type.startsWith('video/')) {
+                showToast('Selecione um arquivo de vídeo válido (MP4, WebM, MOV).', 'error');
+                return;
+            }
+            initializeVideo(URL.createObjectURL(file), file.name, false);
+        }
+
+        document.getElementById('file-input-header').addEventListener('change', e => onFileChosen(e.target.files[0]));
+        document.getElementById('file-input-hero').addEventListener('change', e => onFileChosen(e.target.files[0]));
+
+        const heroZone = document.getElementById('upload-hero-section');
+        heroZone.addEventListener('click', (e) => {
+            if (e.target.closest('#btn-hero-demo')) return;
+            document.getElementById('file-input-hero').click();
+        });
+        heroZone.addEventListener('dragover', e => { e.preventDefault(); heroZone.classList.add('border-violet-500'); });
+        heroZone.addEventListener('dragleave', () => heroZone.classList.remove('border-violet-500'));
+        heroZone.addEventListener('drop', e => {
+            e.preventDefault();
+            heroZone.classList.remove('border-violet-500');
+            if (e.dataTransfer.files[0]) onFileChosen(e.dataTransfer.files[0]);
+        });
+
+        document.getElementById('btn-demo-en').addEventListener('click', loadEnglishDemoVideo);
+        document.getElementById('btn-hero-demo').addEventListener('click', loadEnglishDemoVideo);
+
+        // Duração dos cortes
+        document.querySelectorAll('.dur-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.dur-btn').forEach(b => {
+                    b.classList.remove('bg-violet-600', 'text-white', 'border-violet-500', 'shadow', 'font-bold');
+                    b.classList.add('bg-studio-800', 'text-zinc-300', 'border-zinc-700', 'font-semibold');
+                });
+                btn.classList.remove('bg-studio-800', 'text-zinc-300', 'border-zinc-700', 'font-semibold');
+                btn.classList.add('bg-violet-600', 'text-white', 'border-violet-500', 'shadow', 'font-bold');
+
+                state.sliceLength = Number(btn.dataset.dur);
+                document.getElementById('duration-badge').textContent = state.sliceLength === 60 ? '60s (1 Min)' : `${state.sliceLength}s`;
+                if (state.videoLoaded) sliceVideoAutomatically();
+            });
+        });
+
+        // Ajuste fino de início/fim
+        document.getElementById('input-clip-start').addEventListener('change', e => {
+            const clip = getActiveClip();
+            if (!clip) return;
+            const val = Math.max(0, Math.min(clip.end - 1, Number(e.target.value)));
+            clip.start = val;
+            e.target.value = val;
+            renderClipsList();
+            renderTimelineBlocks();
+        });
+
+        document.getElementById('input-clip-end').addEventListener('change', e => {
+            const clip = getActiveClip();
+            if (!clip) return;
+            const val = Math.min(state.duration, Math.max(clip.start + 1, Number(e.target.value)));
+            clip.end = val;
+            e.target.value = val;
+            renderClipsList();
+            renderTimelineBlocks();
+        });
+
+        document.getElementById('btn-add-custom-clip').addEventListener('click', () => {
+            if (!state.videoLoaded) return;
+            const nextNum = state.clips.length + 1;
+            const newClip = {
+                id: `clip-custom-${Date.now()}`,
+                index: nextNum,
+                title: `Parte ${nextNum}`,
+                start: 0,
+                end: Math.min(60, state.duration),
+                subtitles: []
+            };
+            state.clips.push(newClip);
+            selectActiveClip(newClip.id, false);
+            showToast('Novo corte adicionado!', 'success');
+        });
+
+        // Play / Pause & Loop
+        btnTogglePlay.addEventListener('click', () => {
+            if (hiddenVideo.paused) hiddenVideo.play();
+            else hiddenVideo.pause();
+        });
+
+        hiddenVideo.addEventListener('play', () => {
+            document.getElementById('icon-play-state').setAttribute('data-lucide', 'pause');
+            document.getElementById('text-play-state').textContent = 'Pausar';
+            lucide.createIcons();
+        });
+
+        hiddenVideo.addEventListener('pause', () => {
+            document.getElementById('icon-play-state').setAttribute('data-lucide', 'play');
+            document.getElementById('text-play-state').textContent = 'Reproduzir Corte';
+            lucide.createIcons();
+        });
+
+        btnToggleLoop.addEventListener('click', () => {
+            state.loopClip = !state.loopClip;
+            document.getElementById('text-loop-state').textContent = state.loopClip ? 'Loop: ON' : 'Loop: OFF';
+        });
+
+        // Clique na Timeline
+        document.getElementById('timeline-bar').addEventListener('click', e => {
+            if (!state.videoLoaded || state.isDemoVideo) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            hiddenVideo.currentTime = pct * state.duration;
+        });
+
+        // Escolha de Formato Horizontal
+        document.querySelectorAll('.aspect-choice-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.aspect-choice-btn').forEach(b => {
+                    b.classList.remove('border-2', 'border-violet-500', 'bg-violet-500/10');
+                    b.classList.add('border', 'border-zinc-800', 'bg-studio-950');
+                });
+                btn.classList.remove('border', 'border-zinc-800', 'bg-studio-950');
+                btn.classList.add('border-2', 'border-violet-500', 'bg-violet-500/10');
+                state.aspectMode = btn.dataset.aspect;
+            });
+        });
+
+        document.getElementById('input-top-badge').addEventListener('input', e => state.topBadgeText = e.target.value);
+        document.getElementById('input-watermark').addEventListener('input', e => state.watermarkText = e.target.value);
+
+        // Tradução & Estilo de Legenda
+        btnAutoTranslate.addEventListener('click', translateActiveClipWithAI);
+        document.getElementById('btn-translate-pasted').addEventListener('click', translateActiveClipWithAI);
+        btnLiveMic.addEventListener('click', toggleLiveEnglishRecognition);
+        btnTtsPtbr.addEventListener('click', togglePortugueseTTS);
+
+        document.getElementById('select-sub-style').addEventListener('change', e => state.subStyle = e.target.value);
+        document.getElementById('range-sub-size').addEventListener('input', e => {
+            state.subFontSize = Number(e.target.value);
+            document.getElementById('label-sub-size').textContent = `${state.subFontSize}px`;
+        });
+
+        btnAddSubLine.addEventListener('click', () => {
+            const clip = getActiveClip();
+            if (!clip) return;
+            const lastEnd = clip.subtitles.length > 0 ? clip.subtitles[clip.subtitles.length - 1].end : clip.start;
+            clip.subtitles.push({
+                id: `sub-manual-${Date.now()}`,
+                start: lastEnd,
+                end: Math.min(clip.end, lastEnd + 5),
+                en: 'Original English line',
+                pt: 'Digite a tradução em português aqui'
+            });
+            renderSubtitlesEditor();
+            renderClipsList();
+        });
+
+        // Exportação & Cancelamento
+        btnExportVideo.addEventListener('click', exportCutWithSubtitles);
+        btnDownloadSrt.addEventListener('click', downloadSubtitlesSRT);
+        document.getElementById('btn-abort-export').addEventListener('click', () => {
+            state.isExporting = false;
+            hiddenVideo.pause();
+            if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') state.mediaRecorder.stop();
+            resetExportState();
+            showToast('Exportação cancelada.', 'warning');
+        });
+
+        window.onload = () => {
+            requestAnimationFrame(renderStudioLoop);
+        };
+    </script>
+</body>
+</html>
